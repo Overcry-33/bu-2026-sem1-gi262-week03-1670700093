@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -12,33 +11,43 @@ public class Character : Identity
     public int energy;
     public int attackPoint;
     protected bool isFreeze;
-    //OOPMapGenerator mapGenerator;
-    private bool isAlive;
 
     public virtual void Move(Vector2 direction)
     {
         int toX = (int)(positionX + direction.x);
         int toY = (int)(positionY + direction.y);
-        if (HasPlacement(toX, toY) == true)
+        Debug.Log($"{direction.x} {direction.y}");
+
+
+        if (HasPlacement(toX, toY))
         {
-            if (IsDemonWalls(toX, toY))
-            {
-                mapGenerator.walls[toX, toY].Hit();
-            }
-            else if (IsPotion(toX, toY)) 
+            if (IsPotion(toX, toY))
             {
                 mapGenerator.potions[toX, toY].Hit();
+                mapGenerator.mapdata[positionX, positionY] = mapGenerator.empty;
                 positionX = toX;
                 positionY = toY;
                 transform.position = new Vector2(positionX, positionY);
             }
+            else if (IsDemonWalls(toX, toY))
+            {
+                mapGenerator.walls[toX, toY].Hit();
+            }
+            //else if (IsExit(toX, toY))
+            //{
+            //    mapGenerator.Exit[toX, toY].Hit();
+            //    mapGenerator.mapdata[positionX, positionY] = mapGenerator.empty;
+            //    positionX = toX;
+            //    positionY = toY;
+            //    transform.position = new Vector2(positionX, positionY);
+            //}
         }
-        else 
+        else
         {
+            mapGenerator.mapdata[positionX, positionY] = mapGenerator.empty;
             positionX = toX;
             positionY = toY;
             transform.position = new Vector2(positionX, positionY);
-            TakeDamage(1);
         }
     }
 
@@ -93,30 +102,29 @@ public class Character : Identity
     /// <returns></returns>
     public bool HasPlacement(int x, int y)
     {
-        string mapData = mapGenerator.GetMapData(x, y);
+        var mapData = mapGenerator.GetMapData(x, y);
         return mapData != mapGenerator.empty;
         //return false;
     }
 
     public bool IsDemonWalls(int x, int y)
     {
-        string mapData = mapGenerator.GetMapData(x, y);
+        var mapData = mapGenerator.GetMapData(x, y);
         return mapData == mapGenerator.demonWall;
         //return false;
     }
 
     public bool IsPotion(int x, int y)
     {
-        string mapData = mapGenerator.GetMapData(x, y);
+        var mapData = mapGenerator.GetMapData(x, y);
         return mapData == mapGenerator.potion;
         //return false;
     }
 
     public bool IsExit(int x, int y)
     {
-        string mapData = mapGenerator.GetMapData(x, y);
+        var mapData = mapGenerator.GetMapData(x, y);
         return mapData == mapGenerator.exit;
-        //return false;
     }
 
     #endregion
